@@ -1,0 +1,19 @@
+Explanation on how the trigger_word_chain works
+so fat this is recorded at 15Th Feb
+
+- we have none intents when none of these intents are recognized, we  accept the user input then
+
+- Parse it to CHATGPT and append "do you want prayer or counselling(Though we did not use GPT yet, for saving
+we used out own text)
+
+- Then the user can enter prayer or counselling which is an intent without topic
+this will continue the chain 
+
+or the user can enter prayer for marriage or counselling on greed this is an intent with topic
+This will run and end the chain
+
+- if no topic is detected we then ask prayer for what or counselling for what
+we expect prayer for counselling or prayer for marriage
+
+- Then when this input is entered it will then run with intent and topic and produce an output and will end the chain
+

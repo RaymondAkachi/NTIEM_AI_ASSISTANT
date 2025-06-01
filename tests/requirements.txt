@@ -1,0 +1,10 @@
+scikit-learn
+langchain==0.3.18
+langchain-openai==0.3.5
+unstructured
+langchain-community==0.3.17
+langchain-core==0.3.34
+python-Levenshtein
+rapidfuzz
+faiss-cpu
+python-dotenv
