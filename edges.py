@@ -2,6 +2,9 @@ from chains import rag_router, hallucination_grader, answer_grader
 from state import GraphState
 # import asyncio
 from typing import Literal
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 
 async def rag_router_edge(state: GraphState) -> Literal["vectorstore", "bot_vectorstore", "web_search", "LGBTQ+_related", "GPT"]:

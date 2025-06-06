@@ -6,6 +6,9 @@ from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 # import time  # For in-script testing
 # import asyncio  # For in-script testing
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 
 def is_question_checker(user_input: str):

@@ -4,7 +4,9 @@ from langchain_openai import OpenAIEmbeddings
 from typing import Dict, List
 import asyncio
 from settings import settings
+from dotenv import load_dotenv
 
+load_dotenv('.env')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -15,7 +15,10 @@ import re
 import httpx
 import logging
 from settings import settings
-# import asyncio
+import asyncio
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -357,7 +360,7 @@ Process the user's message according to these rules and provide only the JSON ou
             return None
 
 
-# if __name__ == "__main__":
-#     book_app = BookAppointment(
-#         user_input="I want to book an appointment for 5th May 2025 at 18:00")
-#     print(asyncio.run(book_app.book_appointment("Akachi", "2349094540644")))
+if __name__ == "__main__":
+    book_app = BookAppointment(
+        user_input="I want to book an appointment for 10th July 2025 at 18:00")
+    print(asyncio.run(book_app.book_appointment("Akachi", "2349094540644")))

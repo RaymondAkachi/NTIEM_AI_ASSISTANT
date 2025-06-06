@@ -17,6 +17,9 @@ from sqlalchemy import select
 from json import loads
 from datetime import datetime, timedelta
 from settings import settings
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 ####### GET QUESTION HISTORY #######
 # MongoDB connection setup

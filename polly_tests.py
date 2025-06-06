@@ -60,7 +60,7 @@ class VoiceCreation:
 
             # Save the audio to a file
             # output_file = f"audio/response_{int(time.time())}.mp3"
-            output_file = f"response_{int(time.time())}.mp3"
+            output_file = f"voices/response_{int(time.time())}.mp3"
             with open(output_file, 'wb') as out:
                 out.write(response['AudioStream'].read())
 
@@ -73,7 +73,7 @@ class VoiceCreation:
 # Initialize the Polly client with your credentials
 if __name__ == "__main__":
     x = VoiceCreation(
-        "Uche Raymond is a minister of the Gospel devoted to preaching the word of God").text_to_speech()
+        "I am the fastest man alive right now").text_to_speech()
     print(x)
 
 

@@ -14,7 +14,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv('.env')
 
 QDRANT_URL = 'https://19df3277-f7fe-4676-95aa-8a9b7fe1568e.eu-west-2-0.aws.cloud.qdrant.io:6333'
 QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.K6P9M8eXXJmVl4rKMLqTc2L2EiSVs1InP78pe_J2Mws"

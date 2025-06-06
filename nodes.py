@@ -10,11 +10,11 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
-
+from settings import settings
 load_dotenv('.env')
 
-QDRANT_URL = 'https://19df3277-f7fe-4676-95aa-8a9b7fe1568e.eu-west-2-0.aws.cloud.qdrant.io:6333'
-QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.K6P9M8eXXJmVl4rKMLqTc2L2EiSVs1InP78pe_J2Mws"
+QDRANT_URL = settings.QDRANT_URL
+QDRANT_API_KEY = settings.QDRANT_API_KEY
 client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 COLLECTION_NAME = "ntiem_bot_docs"
 embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")

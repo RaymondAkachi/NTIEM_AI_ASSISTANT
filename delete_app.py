@@ -16,7 +16,9 @@ import logging
 # from app_reminder import setup_scheduler  # Used for in-script testing
 from typing import Dict, List, Any
 from settings import settings
+from dotenv import load_dotenv
 
+load_dotenv('.env')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

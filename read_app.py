@@ -15,7 +15,9 @@ from sqlalchemy import select, distinct
 import models
 # import time  # Used for in-script testing
 import logging
+from dotenv import load_dotenv
 
+load_dotenv('.env')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 

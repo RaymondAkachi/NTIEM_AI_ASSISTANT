@@ -163,7 +163,7 @@ if __name__ == "__main__":
         questions = [
             # "Who is the president of france",
 
-            # "Book me an appointment for 25th March 2025 at 12:34",
+            "Book me an appointment for 10th June 2025 at 12:34",
             # "Accept this appointment user_id is 1, date is 11th May 2025, time is 22:05"
             "Read my appointments for today",
             # "Cancel appointment number 55"
@@ -181,9 +181,8 @@ if __name__ == "__main__":
                 print(f"Error for '{question}': {e}")
         scheduler.shutdown()
 
-    asyncio.run(run_queries())
 # Run all queries in a single event loop
-# try:
-#     asyncio.run(run_queries())
-# except Exception as e:
-#     print(f"Unexpected error: {e}")
+    try:
+        asyncio.run(run_queries())
+    except Exception as e:
+        print(f"Unexpected error: {e}")

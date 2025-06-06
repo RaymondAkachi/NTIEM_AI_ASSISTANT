@@ -50,7 +50,7 @@ condaenv/
 general_vector_store/
 langgraph_notebboks/
 PIP_TEST.egg-info/
-images/
 prayer_and_counsel/
+src/
 # Any other local temporary or specific files
 # my_temp_file.txt
