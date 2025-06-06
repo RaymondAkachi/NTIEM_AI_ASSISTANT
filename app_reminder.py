@@ -17,10 +17,11 @@ import ast
 from pytz import timezone
 from zoneinfo import ZoneInfo
 import httpx
+from settings import settings
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# import asyncio
-# from config import app_settings
+
 
 # Configure WAT timezone
 WAT = ZoneInfo("Africa/Lagos")
@@ -30,8 +31,11 @@ WAT_timezone = timezone('Africa/Lagos')
 scheduler = None
 
 # Constants
-WHATSAPP_TOKEN = "EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD"
-ASSEMBLYAI_API_KEY = "f16b132ff9384d2b9d546aeffe1ea5e1"
+WHATSTAPP_URL = settings.WHATSAPP_API_URL
+WHATSAPP_AUTHORIZATION = settings.WHATSAPP_API_AUTHORIZATION
+OFFICE_LONGITUDE = settings.OFFICE_LONGITUDE
+OFFICE_LATITUDE = settings.OFFICE_LATITUDE
+OFFICE_ADDRESS = settings.OFFICE_ADDRESS
 
 
 async def get_async_db():
@@ -44,7 +48,7 @@ def setup_scheduler():
     """Initialize the scheduler with a SQLAlchemy job store."""
     jobstores = {
         'default': SQLAlchemyJobStore(
-            url="postgresql://postgres:boywithuke@localhost:5432/NTIEM_BOT"
+            url=settings.NON_ASYNC_DATABASE_URL
         )
     }
 
@@ -174,8 +178,8 @@ async def schedule_appointment_reminder(appointment: Appointment, scheduler: Asy
 
 
 async def send_whatsapp_message(phone_number: str, name: str, appointment_date, appointment_time):
-    media_metadata_url = f"https://graph.facebook.com/v22.0/634136199777636/messages"
-    headers = {"Authorization": f"Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+    media_metadata_url = WHATSTAPP_URL
+    headers = {"Authorization": WHATSAPP_AUTHORIZATION,
                "Content-Type": "application/json"}
 
     data = {"messaging_product": "whatsapp",
@@ -194,10 +198,10 @@ async def send_whatsapp_message(phone_number: str, name: str, appointment_date, 
                             {
                                 "type": "location",
                                 "location": {
-                                    "latitude": "9.0764",
-                                    "longitude": "7.4669",
+                                    "latitude": OFFICE_LATITUDE,
+                                    "longitude": OFFICE_LONGITUDE,
                                     "name": "Apostle Uche's office",
-                                    "address": "TEFCON Mall, Lokogoma Rd, beside Wuse Within, Lokogoma, Abuja 900001, Federal Capital Territory"
+                                    "address": OFFICE_ADDRESS
                                 }
                             }
                         ]
@@ -232,7 +236,7 @@ async def send_whatsapp_message(phone_number: str, name: str, appointment_date, 
             reply_status = reply[0]['message_status']
             logging.info("Accepted appoitment message Succesfully sent")
         except BaseException as e:
-            logging.info(f"This went wrong woth accepted appointment {e}")
+            logging.error(f"This went wrong woth accepted appointment {e}")
 
 
 async def send_reminder_notification(appointment_id: int):

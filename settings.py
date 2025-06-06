@@ -17,11 +17,14 @@ class Settings(BaseSettings):
     QDRANT_URL: str
     QDRANT_API_KEY: str
 
+    ASSEMBLYAI_API_KEY: str
+
     POLLY_ACCESS_KEY_ID: str
     POLLY_SECRET_ACCESS_KEY: str
     POLLY_REGION_NAME: str
 
     DATABASE_URL: str
+    NON_ASYNC_DATABASE_URL: str
 
     S3_BUCKET_URL: str
     S3_BUCKET_ACCESS_KEY_ID: str
@@ -37,4 +40,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-# print(type(settings.DATABASE_URL))
+# print(type(settings.NON_ASYNC_DATABASE_URL))

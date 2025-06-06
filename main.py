@@ -27,88 +27,8 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.triggers.cron import CronTrigger
 from datetime import datetime, timedelta
 from models import Appointment
+from settings import settings
 import traceback
-
-# WAT = ZoneInfo("Africa/Lagos")
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger("main")
-
-# app = FastAPI()
-# scheduler = setup_scheduler()
-
-# # Dependency for async session
-# WHATSAPP_TOKEN = "EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD"
-# ASSEMBLYAI_API_KEY = "f16b132ff9384d2b9d546aeffe1ea5e1"
-
-
-# async def get_async_db():
-#     async with AsyncSessionLocal() as session:
-#         yield session
-
-# def setup_scheduler():
-#     """Initialize the scheduler with a SQLAlchemy job store."""
-#     jobstores = {
-#         'default': SQLAlchemyJobStore(
-#             # url=f"postgresql://{app_settings.database_username}:"
-#             # f"{app_settings.database_password}@{app_settings.database_hostname}:"
-#             # f"{app_settings.database_port}/{app_settings.database_name}"
-#             url="postgresql://postgres:boywithuke@localhost:5432/NTIEM_BOT"
-#         )
-#     }
-
-#     scheduler = AsyncIOScheduler(jobstores=jobstores, timezone=WAT)
-#     scheduler.add_job(
-#         check_and_delete_old_appointments,
-#         trigger=CronTrigger(day="28-31", hour=23, minute=59, timezone=WAT),
-#         id="delete_old_appointments",
-#         replace_existing=True,
-#         args=[]
-#     )
-
-#     return scheduler
-
-
-# async def delete_old_appointments(scheduler: AsyncIOScheduler):
-#     async with AsyncSession(engine) as db:
-#         try:
-#             cutoff_date = datetime.now().date() - timedelta(days=30)
-#             result = await db.execute(
-#                 select(Appointment).filter(
-#                     Appointment.appointment_date < cutoff_date.strftime("%Y-%m-%d"))
-#             )
-#             old_appointments = result.scalars().all()
-#             if not old_appointments:
-#                 logger.info("No appointments older than one month found.")
-#                 return
-#             for appointment in old_appointments:
-#                 await db.execute(
-#                     delete(Appointment).filter(
-#                         Appointment.id == appointment.id)
-#                 )
-#                 job_id = f"reminder_{appointment.id}"
-#                 if scheduler.get_job(job_id):
-#                     scheduler.remove_job(job_id)
-#                     logger.info(
-#                         f"Removed scheduler job for appointment {appointment.id}")
-#             await db.commit()
-#             logger.info(
-#                 f"Deleted {len(old_appointments)} appointments older than {cutoff_date}")
-#         except Exception as e:
-#             logger.error(f"Failed to delete old appointments: {str(e)}")
-#             await db.rollback()
-
-
-# async def check_and_delete_old_appointments(scheduler: AsyncIOScheduler):
-#     """Check if today is the last day of the month and run delete_old_appointments."""
-#     today = datetime.now(WAT).date()
-#     # Check if tomorrow is the 1st of the next month
-#     tomorrow = today + timedelta(days=1)
-#     if tomorrow.day == 1:
-#         logger.info("Running end-of-month appointment cleanup")
-#         await delete_old_appointments(scheduler)
-#     else:
-#         logger.debug(
-#             f"Skipping cleanup; today ({today}) is not the last day of the month")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -125,8 +45,9 @@ scheduler = None
 app = FastAPI()
 
 # Constants
-WHATSAPP_TOKEN = "EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD"
-ASSEMBLYAI_API_KEY = "f16b132ff9384d2b9d546aeffe1ea5e1"
+WHATSAPP_API_URL = settings.WHATSAPP_API_URL
+WHATSAPP_API_AUTHORIZATION = settings.WHATSAPP_API_AUTHORIZATION
+ASSEMBLYAI_API_KEY = settings.ASSEMBLYAI_API_KEY
 
 
 async def get_async_db():
@@ -348,7 +269,7 @@ async def process_audio_message(message: Dict) -> str:
 
     audio_id = message["audio"]["id"]
     media_metadata_url = f"https://graph.facebook.com/v22.0/{audio_id}"
-    headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+    headers = {"Authorization": WHATSAPP_API_AUTHORIZATION}
 
     # Step 1: Get download URL from WhatsApp
     async with httpx.AsyncClient() as client:
@@ -412,9 +333,9 @@ async def process_audio_message(message: Dict) -> str:
 
 
 async def text_response(number, text):
-    url = "https://graph.facebook.com/v22.0/634136199777636/messages"
+    url = WHATSAPP_API_URL
     headers = {
-        "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+        "Authorization": WHATSAPP_API_AUTHORIZATION,
         "Content-Type": "application/json"
     }
     payload = {
@@ -439,9 +360,9 @@ async def text_response(number, text):
 
 
 async def audio_response(number, audio_url):
-    api_url = "https://graph.facebook.com/v22.0/634136199777636/messages"
+    api_url = WHATSAPP_API_URL
     headers = {
-        "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+        "Authorization": WHATSAPP_API_AUTHORIZATION,
         "Content-Type": "application/json"
     }
     payload = {
@@ -468,9 +389,9 @@ async def audio_response(number, audio_url):
 
 
 async def video_response(number, video_url, caption):
-    api_url = "https://graph.facebook.com/v22.0/634136199777636/messages"
+    api_url = WHATSAPP_API_URL
     headers = {
-        "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+        "Authorization": WHATSAPP_API_AUTHORIZATION,
         "Content-Type": "application/json"
     }
     payload = {
@@ -499,9 +420,9 @@ async def video_response(number, video_url, caption):
 
 async def image_response(number, image_url):
     caption = "Here is your image"
-    api_url = "https://graph.facebook.com/v22.0/634136199777636/messages"
+    api_url = WHATSAPP_API_URL
     headers = {
-        "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+        "Authorization": WHATSAPP_API_AUTHORIZATION,
         "Content-Type": "application/json"
     }
     payload = {
@@ -530,9 +451,9 @@ async def image_response(number, image_url):
 
 
 async def message_recieved(number):
-    url = "https://graph.facebook.com/v22.0/634136199777636/messages"
+    url = WHATSAPP_API_URL
     headers = {
-        "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+        "Authorization": WHATSAPP_API_AUTHORIZATION,
         "Content-Type": "application/json"
     }
     payload = {
