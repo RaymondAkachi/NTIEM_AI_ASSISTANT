@@ -1,9 +1,9 @@
 from qdrant_client import AsyncQdrantClient, models
-import os
 import logging
 from langchain_openai import OpenAIEmbeddings
 from typing import Dict, List
-import time
+# import time # Use for in-scipt testing
+from settings import settings
 import asyncio
 
 # Configure logging
@@ -25,7 +25,7 @@ class TopicValidator:
         #     raise ValueError("QDRANT_URL and QDRANT_API_KEY are required")
 
         self.embeddings_model = OpenAIEmbeddings(
-            api_key=os.getenv("OPENAI_API_KEY"))
+            api_key=settings.OPENAI_API_KEY)
         self.allowed_topics: Dict[str, List[str]] = {
             "stress_management": ["stress", "anxiety", "burnout", "work pressure", "sad", "depressed", "anxious", "stress",
                                   "pain", "confused", "afraid", "sick", "hurt", "scared", "angry", "enraged",
@@ -43,8 +43,8 @@ class TopicValidator:
         ]
         self.similarity_threshold = 0.79
         self.collection_name = "topics"
-        self.QDRANT_URL = 'https://19df3277-f7fe-4676-95aa-8a9b7fe1568e.eu-west-2-0.aws.cloud.qdrant.io:6333'
-        self.QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.K6P9M8eXXJmVl4rKMLqTc2L2EiSVs1InP78pe_J2Mws"
+        self.QDRANT_URL = settings.QDRANT_URL
+        self.QDRANT_API_KEY = settings.QDRANT_API_KEY
         # Initialize Async Qdrant client
         try:
             self.client = AsyncQdrantClient(
@@ -66,7 +66,6 @@ class TopicValidator:
             raise
 
         # Initialize collection (async)
-        import asyncio
         loop = asyncio.get_event_loop()
         if loop.is_running():
             loop.create_task(self._initialize_collection())
@@ -258,143 +257,17 @@ class TopicValidator:
             raise
 
 
-if __name__ == "__main__":
-    try:
-        async def test_validator():
-            a = time.time()
-            validator = TopicValidator()
-            res1 = await validator.explain_similarity("Hello how are you")
-            res2 = await validator.explain_similarity("Hello there how are you?")
-            # res2 = await validator.explain_similarity("Who is Apostle Jerry Eze")
-            b = time.time()
-            print(b-a)
-            print(res1)
-            print(res2)
-        asyncio.run(test_validator())
-    except BaseException as e:
-        print(f"An Error Occured: {e}")
-
-
-# import numpy as np
-# from sklearn.metrics.pairwise import cosine_similarity
-# from langchain_openai import OpenAIEmbeddings
-# from dotenv import load_dotenv
-# import os
-
-# load_dotenv('.env')
-
-# OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-
-# class TopicValidator:
-#     def __init__(self):
-#         self.embeddings_model = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-#         self.allowed_topics = {
-#             "stress_management": ["stress", "anxiety", "burnout", "work pressure", "sad", "depressed", "anxious", "stress",
-#                                   "pain", "confused", "afraid", "sick", "hurt",
-#                                   "scared", "angry", "enraged", 'deliverance', "breakthrough",
-#                                   "healing"],
-#             "spiritual_growth": ["prayer", "faith", "scripture study", "meditation", "Jesus", "Bible", "christianity", "scripture", "Gospel", "rapture"],
-#             "relationships": ["marriage", "family conflict", "parenting", "friendship"],
-#             "people_of_God": ["Apostle", "Pastor", "Preacher", "Minister", "church", "envangelism", "ministry", "Gospel"],
-#             "Jews": ["Abraham", "Moses", "Judaism", "Covenant", "Jews", ],
-#             "News": ["Nigeria", "News", "Politics", "President", "Policy", "Judiciary", "Bill", "Senator"],
-#             "Greetings": ["Hello", "Hi", "Good day"]
-#         }
-#         self.blocklist = [
-#             "lgbtq+", "gay", "lesbian",
-#             "trangender", "queer", "bisexual"
-#         ]
-#         self.topic_embeddings = self._precompute_embeddings()
-#         self.similarity_threshold = 0.75  # Adjust based on testing
-
-#     def _precompute_embeddings(self):
-#         """Convert allowed topics to embeddings during initialization"""
-#         embeddings = []
-
-#         # Create embeddings for each category and its keywords
-#         for category, keywords in self.allowed_topics.items():
-#             # Embed category name
-#             embeddings.append(self.embeddings_model.embed_query(category))
-
-#             # Embed individual keywords
-#             for keyword in keywords:
-#                 embeddings.append(self.embeddings_model.embed_query(keyword))
-
-#         return np.array(embeddings)
-
-#     def _get_query_embedding(self, query: str) -> np.ndarray:
-#         """Convert user query to embedding vector"""
-#         return np.array(self.embeddings_model.embed_query(query))
-
-#     def calculate_similarity(self, query: str) -> dict:
-#         """Calculate similarity scores against all allowed topics"""
-#         query_embedding = self._get_query_embedding(query)
-#         similarities = cosine_similarity(
-#             [query_embedding],
-#             self.topic_embeddings
-#         )[0]
-
-#         return {
-#             "max_score": np.max(similarities).item(),
-#             "average_score": np.mean(similarities).item(),
-#             "category_scores": {
-#                 category: np.max(
-#                     similarities[i*len(keywords):(i+1)*len(keywords)])
-#                 for i, (category, keywords) in enumerate(self.allowed_topics.items())
-#             }
-#         }
-
-#     def contains_blocked_terms(self, query: str) -> bool:
-#         query_lower = query.lower()
-#         return any(term in query_lower for term in self.blocklist)
-
-#     def is_topic_allowed(self, query: str) -> bool:
-#         """Determine if query matches allowed topics semantically"""
-#         if self.contains_blocked_terms(query):
-#             return False
-
-#         scores = self.calculate_similarity(query)
-#         return scores["max_score"] >= self.similarity_threshold
-
-#     def explain_similarity(self, query: str) -> dict:
-#         """Provide detailed similarity analysis"""
-#         scores = self.calculate_similarity(str(query))
-#         explanation = {
-#             "query": query,
-#             "threshold": self.similarity_threshold,
-#             "decision": "allowed" if scores["max_score"] >= self.similarity_threshold else "rejected",
-#             "scores": scores
-#         }
-#         return explanation
-
-#     def add_topic_category(self, category: str, keywords: list):
-#         """Add new topic category at runtime"""
-#         self.allowed_topics[category] = keywords
-#         new_embeddings = [self.embeddings_model.embed_query(category)]
-#         new_embeddings.extend(
-#             [self.embeddings_model.embed_query(kw) for kw in keywords])
-#         self.topic_embeddings = np.vstack(
-#             [self.topic_embeddings, new_embeddings])
-
-
-# # validator = TopicValidator()
-
-# queries = [
-#     # "I'm feeling overwhelmed at work",
-#     # "How do I start daily bible reading?",
-#     "Hi, Explain quantum field theory"
-#     # "tell me about Jesus",
-#     # "Tell me about the Jews",
-#     # "Who is the President of Nigeria"
-# ]
-
-# # for query in queries:
-# #     result = validator.explain_similarity(query)
-# #     print(f"Query: {query}")
-# #     print(f"Decision: {result['decision']}")
-# # print(f"Max Score: {result['scores']['max_score']:.2f}")
-# # print(f"Category Scores:")
-# # for cat, score in result['scores']['category_scores'].items():
-# #     print(f"- {cat}: {score:.2f}")
-# # print("\n")
+# if __name__ == "__main__":
+#     try:
+#         async def test_validator():
+#             a = time.time()
+#             validator = TopicValidator()
+#             res1 = await validator.explain_similarity("Hello how are you")
+#             res2 = await validator.explain_similarity("Hello there how are you?")
+#             b = time.time()
+#             print(b-a)
+#             print(res1)
+#             print(res2)
+#         asyncio.run(test_validator())
+#     except BaseException as e:
+#         print(f"An Error Occured: {e}")

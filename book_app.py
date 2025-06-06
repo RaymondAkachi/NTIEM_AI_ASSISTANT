@@ -13,7 +13,17 @@ import dateparser
 from datetime import datetime, timedelta
 import re
 import httpx
-import asyncio
+import logging
+from settings import settings
+# import asyncio
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+WHATSAPP_API_URL = settings.WHATSAPP_API_URL
+WHATSAPP_API_AUTHORIZATION = settings.WHATSAPP_API_AUTHORIZATION
+DEFAULT_ADMIN = settings.DEFAULT_ADMIN
 
 
 class BookAppointment:
@@ -274,12 +284,12 @@ Process the user's message according to these rules and provide only the JSON ou
 
     async def send_admin_message(self, user_name, apostle, date_and_time, user_id):
         async with httpx.AsyncClient() as client:
-            message_response = await client.post("https://graph.facebook.com/v22.0/634136199777636/messages",
+            message_response = await client.post(str(WHATSAPP_API_URL),
                                                  headers={
-                                                     "Content-Type": "application/json", "Authorization": "Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD"},
+                                                     "Content-Type": "application/json", "Authorization": str(WHATSAPP_API_AUTHORIZATION)},
                                                  json={"messaging_product": "whatsapp",
                                                        "recipient_type": "individual",
-                                                       "to": "2348032235209",
+                                                       "to": str(DEFAULT_ADMIN),
                                                        "type": "template",
                                                        "template": {
                                                            "name": "appointment_requested",
@@ -317,41 +327,37 @@ Process the user's message according to these rules and provide only the JSON ou
             response = message_response.json()
             return response
 
-    async def book_appointment(self, name, phone_no):
-        date_and_time = await self.validate_params()
-        # date_and_time = {'date': "5th May 2025", "time": "23:20"}
-        if date_and_time:
-            try:
+    async def book_appointment(self, name: str, phone_no: str) -> str | None:
+        try:
+            date_and_time = await self.validate_params()
+            # date_and_time = {'date': "5th May 2025", "time": "23:20"}
+            if date_and_time:
                 async with AsyncSession(engine) as session:
-                    date = date_and_time['date']
-                    time = date_and_time['time']
-                    formatted_date = self.validate_and_format_date(date)
-                    formatted_time = self.normalize_time(time)
-                    appointment_reciever = '2348032235209'
+                    try:
+                        date = date_and_time['date']
+                        time = date_and_time['time']
+                        formatted_date = self.validate_and_format_date(date)
+                        formatted_time = self.normalize_time(time)
+                    except Exception as e:
+                        user_message = f"Failed to book an appointment please use this format, '10th October 2024' for dates and '18:00' for time"
+                        return user_message
 
-                    # user_id = session.query(User.id).filter(
-                    #     User.phone_number == str(phone_no)).scalar()
                     user_id = (await session.execute(select(User.id).where(User.phone_number == str(phone_no)))).scalar_one_or_none()
-
-                    # Add in function to send message to dad when this fuction is called
-
                     user_message = f"Appointment request sent, proposed time is {
                         formatted_date} at {formatted_time}. You will be notified when your appointment has been approved"
-                    # admin_message = f"{name} will like to book an appointment for {formatted_date} at {formatted_time}, user's id is {
-                    #     user_id} to accept the appointment enter the user's id, your preferred date and your preferred time remember your date should be in this format 10th october 2025 and time in this format 17:00"
 
                     await self.send_admin_message(
                         name, "Apostle Uche Raymond", f"{formatted_date} at {formatted_time}", str(user_id))
                     return user_message
-            except Exception as e:
-                user_message = f"Appointment request was invalid, {
-                    str(e)} try checking spellings"
-                return user_message
-        else:
-            return "Failed to book appointment, All needed inputs were not provided please make sure you provide a date and time in these formats (10th October 2024, 11:24)"
+            else:
+                return "Failed to book appointment, All needed inputs were not provided please make sure you provide a date and time in these formats (10th October 2024, 11:24)"
+        except Exception as e:
+            logger.error(
+                f"An error occured while a user was trying to book an appointment: {e}")
+            return None
 
 
-if __name__ == "__main__":
-    book_app = BookAppointment(
-        user_input="I want to book an appointment for 5th May 2025 at 18:00")
-    print(asyncio.run(book_app.book_appointment("Akachi", "2349094540644")))
+# if __name__ == "__main__":
+#     book_app = BookAppointment(
+#         user_input="I want to book an appointment for 5th May 2025 at 18:00")
+#     print(asyncio.run(book_app.book_appointment("Akachi", "2349094540644")))

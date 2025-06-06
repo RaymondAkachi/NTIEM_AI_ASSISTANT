@@ -1,38 +1,39 @@
 import boto3
 import time
-import asyncio
+# import asyncio
 import os
 from botocore.exceptions import ClientError, NoCredentialsError
+from settings import settings
 
 
 class VoiceCreation:
     def __init__(self, text):
         self.polly_client = boto3.client(
             'polly',
-            aws_access_key_id='AKIAUJ3VURJ6URQHAQ7O',  # From the IAM CSV
-            aws_secret_access_key='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',  # From the IAM CSV
+            aws_access_key_id=settings.POLLY_ACCESS_KEY_ID,  # From the IAM CSV
+            aws_secret_access_key=settings.POLLY_SECRET_ACCESS_KEY,  # From the IAM CSV
             # Choose a region close to you, e.g., 'us-east-1' for N. Virginia
-            region_name='eu-north-1'
+            region_name=settings.POLLY_REGION_NAME
         )
         self.text = text
 
-    def upload_to_s3(self, image_path):
+    def upload_to_s3(self, output_path):
         try:
             s3_client = boto3.client('s3',
-                                     aws_access_key_id="AKIAUJ3VURJ6X2ADLHIZ",
-                                     aws_secret_access_key="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",
+                                     aws_access_key_id=settings.S3_BUCKET_ACCESS_KEY_ID,
+                                     aws_secret_access_key=settings.S3_BUCKET_SECRET_ACCESS_KEY,
                                      region_name='eu-north-1')
 
             # file_extension = os.path.splitext(image_path)[1]  # e.g., '.png'
-            video_key = f"audio/{image_path}"
+            video_key = f"audio/{output_path}"
             s3_client.upload_file(
-                image_path,
+                output_path,
                 "ntiembotbucket",
                 video_key,
                 ExtraArgs={'ContentType': 'audio/mpeg'}
             )
-            url = f"https://ntiembotbucket.s3.eu-north-1.amazonaws.com/{video_key}"
-            os.remove(image_path)
+            url = f"{settings.S3_BUCKET_URL}/{video_key}"
+            os.remove(output_path)
             return url
         except ValueError as e:
             print(e)
@@ -58,7 +59,8 @@ class VoiceCreation:
             )
 
             # Save the audio to a file
-            output_file = f"audio/response_{int(time.time())}.mp3"
+            # output_file = f"audio/response_{int(time.time())}.mp3"
+            output_file = f"response_{int(time.time())}.mp3"
             with open(output_file, 'wb') as out:
                 out.write(response['AudioStream'].read())
 
@@ -69,10 +71,10 @@ class VoiceCreation:
 
 
 # Initialize the Polly client with your credentials
-# if __name__ == "__main__":
-#     x = VoiceCreation(
-#         "Uche Raymond is a minister of the Gospel devoted to preaching the word of God").text_to_speech()
-#     print(x)
+if __name__ == "__main__":
+    x = VoiceCreation(
+        "Uche Raymond is a minister of the Gospel devoted to preaching the word of God").text_to_speech()
+    print(x)
 
 
 # async def hello():

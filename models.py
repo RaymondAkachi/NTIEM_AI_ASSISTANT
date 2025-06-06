@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from database import Base, engine
-from sqlalchemy.ext.asyncio import AsyncSession
+# from sqlalchemy.ext.asyncio import AsyncSession
 # import asyncio
 
 
@@ -46,7 +46,7 @@ async def create_tables():
 # async def add_admin_users():
 #     try:
 #         async with AsyncSession(engine) as session:
-#             for user in [{'user_id': 2, 'user_name': "Apostle Uche Raymond", 'phone_number': "2348032235209"}]:
+#             for user in [{'user_id': 2, 'user_name': "*******", 'phone_number': "*******"}]:
 #                 new_admin_user = AdminUser(**user)
 #                 session.add(new_admin_user)
 #             await session.commit()

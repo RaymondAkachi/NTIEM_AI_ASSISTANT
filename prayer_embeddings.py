@@ -1,12 +1,10 @@
 from qdrant_client import AsyncQdrantClient, models
-import os
 import logging
 from langchain_openai import OpenAIEmbeddings
 from typing import Dict, List
-from dotenv import load_dotenv
 import asyncio
-# Load environment variables
-load_dotenv('.env')
+from settings import settings
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +26,7 @@ class PrayerRelation:
         #     raise ValueError("QDRANT_URL and QDRANT_API_KEY are required")
 
         self.embeddings_model = OpenAIEmbeddings(
-            api_key=os.getenv("OPENAI_API_KEY"))
+            api_key=settings.OPENAI_API_KEY)
         self.allowed_topics: Dict[str, List[str]] = {
             "Marriage": ["marriage", "spouse", "partner", "husband", "wife", "marital relationship",
                          "infertility", "intimacy", "pregnancy", "parenting within marriage",
@@ -81,8 +79,8 @@ class PrayerRelation:
         }
         self.similarity_threshold = 0.75
         self.collection_name = "prayer_topics"
-        self.QDRANT_URL = 'https://19df3277-f7fe-4676-95aa-8a9b7fe1568e.eu-west-2-0.aws.cloud.qdrant.io:6333'
-        self.QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.K6P9M8eXXJmVl4rKMLqTc2L2EiSVs1InP78pe_J2Mws"
+        self.QDRANT_URL = settings.QDRANT_URL
+        self.QDRANT_API_KEY = settings.QDRANT_API_KEY
         # Initialize Async Qdrant client
         try:
             self.client = AsyncQdrantClient(
@@ -313,18 +311,19 @@ While waiting for their response, please read the Bible verses provided and pray
             raise
 
 
-if __name__ == "__main__":
-    async def test_prayer_relation():
-        try:
-            x = PrayerRelation()
-            result = await x.return_help("I need prayer for my marriage")
-            print(result)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+# if __name__ == "__main__":
+#     async def test_prayer_relation():
+#         try:
+#             x = PrayerRelation()
+#             result = await x.return_help("I need prayer for my depression")
+#             print(result)
+#         except Exception as e:
+#             print(f"An error occurred: {e}")
 
-    asyncio.run(test_prayer_relation())
+#     asyncio.run(test_prayer_relation())
 
 
+# No LONGER BEING USED
 # import numpy as np
 # from sklearn.metrics.pairwise import cosine_similarity
 # from langchain_openai import OpenAIEmbeddings

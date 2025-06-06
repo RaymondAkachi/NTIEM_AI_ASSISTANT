@@ -7,15 +7,13 @@ import boto3
 import csv
 from io import StringIO
 from botocore.exceptions import ClientError
-# from config import app_settings
-from dotenv import load_dotenv
-import asyncio
-import time
+from settings import settings
+# import asyncio  # For testing purposes
+# import time  # For in-script testing
 
-load_dotenv('.env')
-
-S3_SECRET_ACCESS_KEY = "Fu3TMIJUYuNNMt9IiU0j2AjNdIo7u5RmBL4O94n4"
-S3_ACCESS_KEY = "AKIAUJ3VURJ6X2ADLHIZ"
+S3_SECRET_ACCESS_KEY = settings.S3_BUCKET_SECRET_ACCESS_KEY
+S3_ACCESS_KEY = settings.S3_BUCKET_ACCESS_KEY_ID
+S3_BUCKET_REGION = settings.S3_REGION_NAME
 
 
 def find_video_links(search_terms: dict,  csv_key='videos.csv'):
@@ -27,7 +25,7 @@ def find_video_links(search_terms: dict,  csv_key='videos.csv'):
         's3',
         aws_access_key_id=S3_ACCESS_KEY,
         aws_secret_access_key=S3_SECRET_ACCESS_KEY,
-        region_name='eu-north-1')
+        region_name=S3_BUCKET_REGION)
 
     bucket_name = 'ntiembotbucket'
     try:
@@ -67,21 +65,9 @@ def find_video_links(search_terms: dict,  csv_key='videos.csv'):
                         'match_type': 'upload_time',
                         'upload_time': requested_date
                     })
-        # If no title matches, search by upload_time
-        # if not found_in_titles:
-        #     for row in rows:
-        #         if row['UploadTime'] == search_terms['date']:
-        #             results.append({
-        #                 's3bucketlink': row['s3bucketlink'],
-        #                 'socialLink': row['socialLink'],
-        #                 'match_type': 'upload_time'
-        #             })
-
         if results == []:
             return f"Sorry we could not find any video for the values given"
 
-        # for i in results
-        # send whatsapp video template message, with video link as s3 link and social_media link in message
         return results
 
     except ClientError as e:
@@ -90,14 +76,6 @@ def find_video_links(search_terms: dict,  csv_key='videos.csv'):
     except Exception as e:
         print(f"Error: {str(e)}")
         return None
-
-
-# a = time.time()
-# x = find_video_links(
-#     search_terms={'title': "test video2", 'date': None})
-# b = time.time()
-# print(b-a)
-# print(x)
 
 
 class GetSermon:
@@ -161,9 +139,10 @@ Extract the title and date from: {request}"""
             "Please mention a date or time that the sermon was preached"
 
 
-# a = time.time()
-# y = asyncio.run(
-#     GetSermon("Get me the sermon titled test_video2").get_sermons())
-# print(y)
-# b = time.time()
-# print(b-a)
+# if __name__ == "__main__":
+#     a = time.time()
+#     y = asyncio.run(
+#         GetSermon("Get me the sermon titled test_video2").get_sermons())
+#     print(y)
+#     b = time.time()
+#     print(b-a)

@@ -5,15 +5,19 @@ from langchain_core.runnables import RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 import calendar
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import engine
+# from database import engine  # Used for in script testing
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import regex as re
 from models import Appointment
 from sqlalchemy import select, distinct
-import asyncio
+# import asyncio  # Used for in-script testing
 import models
-import time
+# import time  # Used for in-script testing
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 class ReadAppointments:
@@ -215,8 +219,7 @@ Output only the JSON array.
 
                             if not matching_dates:
                                 # No dates matched
-                                response = f"No appointments found for '{criteria}' consider checking spellings, or make sure the date format is correct it should be 2024-2-28"
-
+                                response = f"No appointments found, to re-confirm please use a specific date such as '12th October 2024'"
                         except Exception as e:
                             return f"This went wrong {e}"
                     # Query appointments for the matched dates
@@ -225,7 +228,7 @@ Output only the JSON array.
                             Appointment.phone_number,
                             Appointment.appointment_time,
                             Appointment.appointment_date,
-                            Appointment.id      # Note: Typo matches your model
+                            Appointment.id
                         ).where(
                             Appointment.appointment_date.in_(matching_dates)
                         )
@@ -233,13 +236,17 @@ Output only the JSON array.
                         result = await self.session.execute(
                             stmt)
                         result = result.all()  # Returns list of tuples
+                        if not result:
+                            return f"No appointments found, please us this formats:'12th May 2025'\n or tomorrow, this week, next week, tomorrow, next week, next two weeks, this month, next month"
                         response_string += f"---{criteria.upper()}---\n"
                         for user_name, phone, time, date, id in result:
                             response_string += f"appointment scheduled with {
                                 user_name} |\t {user_name}'s phone number: +{phone} |\t at {date} {time} | appointment_id is {id}\n\n"
                         response = response + response_string
                     except Exception as e:
-                        return f"Invalid request try entering date in this format 'Y-M-D e.g 2024-11-2'\n or tomorrow, this week, next week, tomorrow, next week, next two weeks, this month, next month"
+                        logger.error(
+                            f"Error occured while trying to read appointment: {e}")
+                        return f"There was an error in trying to read appointments: {e}"
                 return response
             else:
                 return "Please mention a date or dates you would like to read the appointments for"
@@ -252,7 +259,7 @@ Output only the JSON array.
 #         a = time.time()
 #         async with AsyncSession(engine) as session:
 #             read_app = ReadAppointments(
-#                 "Show me my appointments for 13th May 2025", session)
+#                 "Show me my appointments for this week", session)
 #             result = await read_app.get_appointments_by_criteria('2349094540644')
 #             print(result)
 #         b = time.time()

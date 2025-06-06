@@ -1,12 +1,11 @@
-# import asyncio
 # from langchain_core.pydantic_v1 import BaseModel, Field
 from pydantic import BaseModel, Field
 from typing import Literal
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-import time
-import asyncio
+# import time  # For in-script testing
+# import asyncio  # For in-script testing
 
 
 def is_question_checker(user_input: str):
@@ -72,14 +71,14 @@ async def question_router(user_input: str):
     return result.datasource
 
 
-if __name__ == "__main__":
-    async def test_inputs():
-        # for i in ["Draw me a picture of Jesus", 'Who is Uche Raymond', "How do i book an appointment", "I need prayer for my husband", "Get me the sermon on Tuesday"]:
-        # for i in ["Make me an image of Jesus Chrsit", "Who is Apostle Uche Raymond", "I need prayer", "Get the sermon titled the last of us"]:
-        for i in ["Book me an appointment for 4"]:
-            a = time.time()
-            routed = await question_router(i)
-            print(routed)
-            b = time.time()
-            print(b-a)
-    asyncio.run(test_inputs())
+# if __name__ == "__main__":
+#     async def test_inputs():
+#         # for i in ["Draw me a picture of Jesus", 'Who is Uche Raymond', "How do i book an appointment", "I need prayer for my husband", "Get me the sermon on Tuesday"]:
+#         # for i in ["Make me an image of Jesus Chrsit", "Who is Apostle Uche Raymond", "I need prayer", "Get the sermon titled the last of us"]:
+#         for i in ["I need help"]:
+#             a = time.time()
+#             routed = await question_router(i)
+#             print(routed)
+#             b = time.time()
+#             print(b-a)
+#     asyncio.run(test_inputs())

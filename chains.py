@@ -7,9 +7,9 @@ from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
-import asyncio
 import os
-from langchain.schema import Document
+# from langchain.schema import Document
+# import asyncio
 from langchain_community.tools.tavily_search import TavilySearchResults
 from dotenv import load_dotenv
 

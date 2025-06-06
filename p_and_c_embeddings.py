@@ -1,28 +1,12 @@
 from dotenv import load_dotenv
-import os
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-# from prayer_embeddings import validator
-# from counselling_embedings import counselling_validator
 from pydantic import BaseModel, Field
 from typing import Literal
+
+
 load_dotenv('.env')
 
-
-# def split_request(chain, input_text):
-#     """
-#     Split the input text into separate questions using the provided chain.
-
-#     Args:
-#         chain (LLMChain): The chain to process the input.
-#         input_text (str): The user's request to split.
-
-#     Returns:
-#         list: A list of split questions.
-#     """
-#     response = chain.invoke(input=input_text)
-#     questions = [q.strip() for q in str(response.content).split('\n') if q.strip()]
-#     return questions
 
 async def prayer_and_counselling(request: str, validator, counselling_validator) -> str:
     """
@@ -31,29 +15,6 @@ async def prayer_and_counselling(request: str, validator, counselling_validator)
     Returns:
         A chain that processes the input and returns a response.
     """
-#     prompt = ChatPromptTemplate.from_template(
-#         """Please split the following request into separate questions for prayer and/or counselling, each on a new line.
-# IF NO TOPIC IS PRAYER TOPIC OR COUNSELLING TOPIC IS GIVEN JUST SPLIT AS IS DO NOT CREATE TOPICS.
-# ABSOLUTELY MAKE SURE THAT THE PRAYER REQUESTS ALWAYS COME FIRST
-
-# {input}"""
-
-#     prompt = ChatPromptTemplate.from_template(
-#     """Please split the following request into separate statements for prayer and/or counselling, each on a new line. Preserve the verb used in the input and include the specific topic if mentioned. If no topic is specified, use 'I need counselling' and/or 'I need prayer' as appropriate. For example:
-
-# Input: I need counselling and prayer
-# Output:
-# I need counselling
-# I need prayer
-# Input: I need counselling for marriage and prayer for anxiety
-# Output:
-# I need counselling for marriage
-# I need prayer for anxiety
-# Now, split the following request:
-
-# {input}
-#     """
-#     )
     prompt = ChatPromptTemplate.from_template(
         """"Please split the following request into separate statements for prayer and/or counselling, each on a new line. Each statement must be a complete sentence starting with the verb used in the input (e.g., 'I need,' 'I want'), followed by the service ('prayer' or 'counselling'), and the specific topic if provided. If no topic is specified for a service, use a general statement like 'I need prayer' or 'I need counselling' matching the input verb. If the request doesn’t specify a service but mentions a topic (e.g., 'I need help with anxiety'), assume the topic applies to both prayer and counselling unless indicated otherwise.
 

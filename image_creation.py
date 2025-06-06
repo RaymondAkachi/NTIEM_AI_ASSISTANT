@@ -1,117 +1,12 @@
-# from sqlalchemy.future import select
-# import asyncio
-# from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-# from sqlalchemy.orm import declarative_base
-# from sqlalchemy import Column, Integer, String
-# from sqlalchemy import select
-# # from sqlalchemy import select
-
-# # Database URL (replace with your PostgreSQL connection string)
-# DATABASE_URL = "postgresql+asyncpg://postgres:boywithuke@localhost:5432/NTIEM_BOT"
-
-# # # Create an asynchronous engine
-# # engine = create_async_engine(DATABASE_URL)
-
-# # # Declarative base for defining models
-# # Base = declarative_base()
-
-# # # Define a simple model
-
-
-# # class User(Base):
-# #     __tablename__ = "async_test"
-
-# #     id = Column(Integer, primary_key=True)
-# #     name = Column(String)
-
-# # # Asynchronous function to perform database operations
-
-
-# # async def perform_database_operations():
-# #     # async with engine.begin() as conn:
-# #     #     await conn.run_sync(Base.metadata.create_all)
-
-# #     async with AsyncSession(engine) as session:
-# #         # Add a user
-# #         new_user = User(name="Akachi")
-# #         session.add(new_user)
-# #         await session.commit()
-
-# #         # Query users
-# #         result = await session.execute(select(User))
-# #         users = result.scalars().all()
-# #         for user in users:
-# #             print(f"User ID: {user.id}, Name: {user.name}")
-
-# # # Run the asynchronous function
-
-
-# # async def main():
-# #     await perform_database_operations()
-
-# # if __name__ == "__main__":
-# #     asyncio.run(main())
-
-
-# # Database URL (replace with your PostgreSQL connection string)
-
-# # Create an asynchronous engine WITHOUT echo=True
-# engine = create_async_engine(DATABASE_URL)  # remove echo=True
-
-# # Declarative base for defining models
-# Base = declarative_base()
-
-# # Define a simple model
-
-
-# class User(Base):
-#     __tablename__ = "async_test"  # Changed to async_test to match your output.
-
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String)
-
-# # Asynchronous function to perform database operations
-
-
-# async def perform_database_operations():
-#     async with engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.create_all)
-
-#     async with AsyncSession(engine) as session:
-#         # Add a user
-#         new_user = User(name="Alice")
-#         session.add(new_user)
-#         await session.commit()
-
-#         # Add a second user
-#         new_user2 = User(name="Alice")
-#         session.add(new_user2)
-#         await session.commit()
-
-#         # Query users
-#         result = await session.execute(select(User))
-#         users = result.scalars().all()
-#         for user in users:
-#             print(f"User ID: {user.id}, Name: {user.name}")
-
-# # Run the asynchronous function
-
-
-# async def main():
-#     await perform_database_operations()
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
-
 import base64
 import logging
-from typing import Union, List
 from together import Together
 import os
 from uuid import uuid4
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import os
+from settings import settings
 
 logging.basicConfig(level=logging.INFO)
 
@@ -140,15 +35,15 @@ class TogetherImageGenerator:
             ValueError: If the API key is not provided.
         """
 
-        self.api_key = "49d29ffd4bd6b87e7a652ef93e35c7d90eab9a16b47a0fdabaf5c168e9404eed"
+        self.api_key = settings.TOGETHERAI_API_KEY
         self.logger = logging.getLogger(__name__)
         self.together_client = Together(api_key=self.api_key)
 
     def upload_to_s3(self, image_path):
         try:
             s3_client = boto3.client('s3',
-                                     aws_access_key_id="AKIAUJ3VURJ6X2ADLHIZ",
-                                     aws_secret_access_key="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",
+                                     aws_access_key_id=settings.S3_BUCKET_ACCESS_KEY_ID,
+                                     aws_secret_access_key=settings.S3_BUCKET_SECRET_ACCESS_KEY,
                                      region_name='eu-north-1')
 
             # file_extension = os.path.splitext(image_path)[1]  # e.g., '.png'
@@ -159,7 +54,7 @@ class TogetherImageGenerator:
                 video_key,
                 ExtraArgs={'ContentType': 'image/png'}
             )
-            url = f"https://ntiembotbucket.s3.eu-north-1.amazonaws.com/{video_key}"
+            url = f"{settings.S3_BUCKET_URL}/{video_key}"
             os.remove(image_path)
             return url
         except ValueError as e:
@@ -205,10 +100,10 @@ class TogetherImageGenerator:
         except Exception as e:
             print(e)
 
-
-# x = TogetherImageGenerator().generate_image(
-#     "Make me an image of a gorilla")
-# print(x)
+# if __name__ == "__main__":
+#     x = TogetherImageGenerator().generate_image(
+#         "Make me an image of a gorilla that is dancing")
+#     print(x)
 
 
 # async def single_image():

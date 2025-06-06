@@ -1,6 +1,6 @@
 from typing import List
 from rapidfuzz import fuzz, process
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -12,17 +12,16 @@ from models import User
 from database import engine
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, UTC
-import asyncio
+# import asyncio  # For testing purposes
 from sqlalchemy import select
 from json import loads
 from datetime import datetime, timedelta
-
-load_dotenv('.env')
+from settings import settings
 
 ####### GET QUESTION HISTORY #######
 # MongoDB connection setup
-uri = "mongodb+srv://Akachi:godwin2007@myatlasclusteredu.mqq6x.mongodb.net/?retryWrites=true&w=majority&appName=myAtlasClusterEDU"
-client = AsyncIOMotorClient(uri, server_api=ServerApi(
+MONGODBATLAS_URL = settings.MONGODBATLAS_URI
+client = AsyncIOMotorClient(MONGODBATLAS_URL, server_api=ServerApi(
     version='1', strict=True, deprecation_errors=True))
 
 # Select database and collection
@@ -316,22 +315,8 @@ async def query_rewrite(user_question, user_name, user_phone_number):
     return result
 
 
-if __name__ == "__main__":
-    async def update_test():
-        # response = await query_rewrite("Who is your creator's mother?", "Akachi", "2349094540644")
-        # print(response)
-        # history = [
-        #     'User: Hello', "Bot: Appointments for today are: Akachi at 11:29 p.m"]
-        # response = await chain.ainvoke({'chat_history': history, "input": 'Read my appointments for Today'})
-        # response_2 = await chain.ainvoke({'chat_history': history, "input": "Who created you?"})
-        # response_3 = await chain.ainvoke({'chat_history': history, "input": "To provide what guidance?"})
-        # print(response)
-        # chat_history = await get_chat_history('2349094540644')
-        # print(chat_history)
-        res_1 = await query_rewrite('Who is your creator?', "Akachi", "2349094540644")
-        # res_2 = await query_rewrite('Book me an appointment for 10th May 2024', "Akachi", "2349094540644")
-        print(res_1)
-        # res = await query_rewriter_chain.ainvoke({'user_question': 'What is the name of the Church?'})
-        # print(res)
-        pass
-    asyncio.run(update_test())
+# if __name__ == "__main__":
+#     async def update_test():
+#         res_1 = await query_rewrite('What is happening today?', "Akachi", "2349094540644")
+#         print(res_1)
+#     asyncio.run(update_test())

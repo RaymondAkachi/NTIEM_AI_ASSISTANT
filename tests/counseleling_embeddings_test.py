@@ -359,3 +359,186 @@ if __name__ == "__main__":
             print(f"An error occurred: {e}")
 
     asyncio.run(test_counselling_relation())
+
+
+# from langchain_openai import OpenAIEmbeddings
+# from dotenv import load_dotenv
+# import os
+# import numpy as np
+# from sklearn.metrics.pairwise import cosine_similarity
+
+# load_dotenv('.env')
+# OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+
+# class CounsellingRelation:
+#     def __init__(self):
+#         self.embeddings_model = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+#         # self.topic_category = {
+#         #     "marriage": ["stress", "anxiety", "burnout", "work pressure", "sad", "depressed", "anxious", "stress",
+#         #              "pain", "confused", "afraid", "sick", "hurt",
+#         #              "scared", "angry", "enraged", 'deliverance', "breakthrough",
+#         #              "healing"],
+#         #     "health": ["prayer", "faith", "scripture study", "meditation", "Jesus", "Bible", "christianity", "scripture", "Gospel", "rapture"],
+#         #     "anxiety": ["marriage", "family conflict", "parenting", "friendship"],
+#         #     "parenting": ["Apostle", "Pastor", "Preacher", "Minister"]
+#         # }
+#         self.allowed_topics = {
+#             "Grief": ["death", "loss", "bereavement", "mourning", "sadness", "heartbroken", "grieving a loved one",
+#                       "funeral", "grieving process", "passed away", "why did this happen", "searching for meaning",
+#                       "feeling lost", "questioning God", "spiritual crisis", "grief counseling", "support group",
+#                       "memorial", "coping with loss", "I can't stop crying", "I feel empty"],
+#             "Relationships": ["marriage", "divorce", "separation", "conflict", "argument", "communication",
+#                               "infidelity", "affair", "breakup", "dating", "family", "children", "spouse", "partner",
+#                               "relationship issues", "loneliness", "intimacy", "trust", "forgiveness", "boundaries",
+#                               "friendship issues", "coworker conflict", "social anxiety", "romantic relationship",
+#                               "family dynamics", "parenting challenges", "faith-based counseling", "spiritual guidance",
+#                               "I'm always fighting with my partner", "I feel disconnected"],
+#             "Addiction": ["addiction", "substance abuse", "alcoholism", "drug abuse", "dependence", "recovery", "relapse",
+#                           "withdrawal", "overdose", "gambling addiction", "compulsive behavior", "craving", "support group",
+#                           "rehabilitation", "12-step program", "self-control", "internet addiction", "food addiction",
+#                           "behavioral addiction", "seeking help", "treatment options", "I can't control myself",
+#                           "I'm scared of what I'm doing"],
+#             "Anxiety": ["anxiety", "worry", "fear", "nervousness", "panic", "overthinking", "restlessness", "dread",
+#                         "anxious thoughts", "feeling anxious", "panic attacks", "social anxiety", "generalized anxiety",
+#                         "I can’t relax", "I’m constantly worried", "fear of the future", "racing thoughts",
+#                         "anxiety about work", "nervous breakdown"]
+#         }
+
+#         self.counselling_feedback = {
+#             "Grief": {
+#                 "verses": ["Psalm 34:18", "Revelation 21:4", "Matthew 5:4"],
+#                 "steps": [
+#                     "Allow yourself to grieve",
+#                     "Join support group",
+#                     "Memorialize your loss"
+#                 ],
+#                 "counseling": "GriefShare: 1-800-395-5755"
+#             },
+#             "Addiction": {
+#                 "verses": ["1 Corinthians 10:13", "Philippians 4:13", "Galatians 5:1"],
+#                 "steps": [
+#                     "Contact Celebrate Recovery",
+#                     "Remove triggers",
+#                     "Daily accountability"
+#                 ],
+#                 "counseling": "SAMHSA: 1-800-662-4357"
+#             },
+#             "Relationships": {
+#                 "verses": ["Colossians 3:13", "Ecclesiastes 4:9-12", "Proverbs 15:1"],
+#                 "steps": [
+#                     "Practice active listening",
+#                     "Set healthy boundaries",
+#                     "Seek couples counseling"
+#                 ],
+#                 "counseling": "Christian Relationship Counselors Network: 1-855-222-2575"
+#             },
+#             "Anxiety": {
+#                 "verses": ["Philippians 4:6-7", "1 Peter 5:7", "Matthew 6:34"],
+#                 "steps": [
+#                     "Pray to God",
+#                     "Read the word of God"],
+#                 "counseling": "Christian Anxiety Counselors Network: 1-855-222-2575"
+#             },
+#             "Default": {
+#                 "verses": ["Colossians 3:13", "Ecclesiastes 4:9-12", "Proverbs 15:1"],
+#                 "steps": [
+#                     "Practice active listening",
+#                     "Set healthy boundaries",
+#                     "Seek couples counseling"
+#                 ],
+#                 "counseling": "Christian Counselors Network: 1-855-222-2575"
+#             }
+#         }
+#         self.topic_embeddings, self.category_indices = self._precompute_embeddings()
+#         self.similarity_threshold = 0.75  # Adjusted for average similarity
+
+#     def _precompute_embeddings(self):
+#         """Convert allowed topics to embeddings and store category indices"""
+#         embeddings = []
+#         category_indices = {}
+#         idx = 0
+#         for category, keywords in self.allowed_topics.items():
+#             embeddings.append(self.embeddings_model.embed_query(
+#                 category))  # Category name
+#             start_idx = idx
+#             idx += 1
+#             for keyword in keywords:
+#                 embeddings.append(
+#                     self.embeddings_model.embed_query(keyword))  # Keywords
+#                 idx += 1
+#             end_idx = idx
+#             category_indices[category] = (start_idx, end_idx)
+#         return np.array(embeddings), category_indices
+
+#     def _get_query_embedding(self, query: str) -> np.ndarray:
+#         """Convert user query to embedding vector"""
+#         return np.array(self.embeddings_model.embed_query(query))
+
+#     def calculate_similarity(self, query: str) -> dict:
+#         """Calculate similarity scores against all allowed topics"""
+#         query_embedding = self._get_query_embedding(query)
+#         similarities = cosine_similarity(
+#             [query_embedding], self.topic_embeddings)[0]
+
+#         category_scores = {}
+#         for category, (start, end) in self.category_indices.items():
+#             category_similarities = similarities[start:end]
+#             # Average similarity per category
+#             category_scores[category] = np.mean(category_similarities)
+
+#         return {
+#             "max_score": np.max(similarities).item(),
+#             "average_score": np.mean(similarities).item(),
+#             "category_scores": category_scores
+#         }
+
+#     def is_topic_allowed(self, query: str) -> bool:
+#         """Determine if query matches allowed topics semantically"""
+#         scores = self.calculate_similarity(query)
+#         max_category_score = max(scores["category_scores"].values())
+#         return max_category_score >= self.similarity_threshold
+
+#     def explain_similarity(self, query: str) -> dict:
+#         """Provide detailed similarity analysis"""
+#         scores = self.calculate_similarity(query)
+#         max_category_score = max(scores["category_scores"].values())
+#         decision = "found" if max_category_score >= self.similarity_threshold else "not_found"
+#         most_likely_category = max(
+#             scores["category_scores"], key=scores["category_scores"].get)
+#         explanation = {
+#             "query": query,
+#             "threshold": self.similarity_threshold,
+#             "decision": decision,
+#             "most_likely_category": most_likely_category,
+#             "max_category_score": max_category_score,
+#             "scores": scores
+#         }
+#         return explanation
+
+#     def return_help(self, query: str) -> str:
+#         """"Takes values from explain similarity and returns a response string to the user using using those values"""
+#         values = self.explain_similarity(query)
+#         if values["decision"] == 'found':
+#             department = self.counselling_feedback[str(
+#                 values['most_likely_category'])]
+#         else:
+#             department = self.counselling_feedback["Default"]
+#         response_string = f"""Hello Please read these bible verses we believe it will help with your situation {str(department['verses'])}
+# Please call this number they will counsel you: {str(department['counseling'])}"""
+#         return response_string
+
+#     def add_topic_category(self, category: str, keywords: list):
+#         """Add new topic category at runtime"""
+#         self.allowed_topics[category] = keywords
+#         new_embeddings = [self.embeddings_model.embed_query(category)]
+#         new_embeddings.extend(
+#             [self.embeddings_model.embed_query(kw) for kw in keywords])
+#         self.topic_embeddings = np.vstack(
+#             [self.topic_embeddings, new_embeddings])
+#         start_idx = len(self.topic_embeddings) - len(new_embeddings)
+#         end_idx = len(self.topic_embeddings)
+#         self.category_indices[category] = (start_idx, end_idx)
+
+
+# counselling_validator = CounsellingRelation()

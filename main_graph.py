@@ -45,42 +45,35 @@ def create_workflow_graph():
 
 if __name__ == "__main__":
     async def execute_main_graph():
-        try:
-            user_name = "Akachi"
-            user_phone_number = '2349094540644'
-            session_id = user_phone_number
+        user_name = "Akachi"
+        user_phone_number = '2349094540644'
+        session_id = user_phone_number
 
-            # Prepare the validators, scheduler, and graph builder
-            rag_validator = [TopicValidator()]
-            p_and_c_validators = {
-                'validator': PrayerRelation(),
-                "counselling_validator": CounsellingRelation()
-            }
-            # p_and_c_validators = {'validator': "", "counselling_validator": ""}
-            # rag_validator = ['']
-            scheduler = setup_scheduler()
-            graph = create_workflow_graph().compile()
-            for i in ["Book me an appointment for today at 18:00"]:
-                a = time.time()
-                try:
-                    results = await graph.ainvoke(
-                        {
-                            'user_request': i,
-                            'user_name': user_name,
-                            'user_phone_number': user_phone_number,
-                            'rag_validator': rag_validator,
-                            'p_and_c_validators': p_and_c_validators,
-                            'scheduler': [scheduler]
-                        })
-                    b = time.time()
-                    print(b-a)
-                    print(results['output_format'], results['response'])
-                except BaseException as e:
-                    print(f"Error occurred: {e}")
-        except BaseException as e:
-            # print("Error occurred:\n%s" % traceback.format_exc(e))
-            print(traceback.format_tb(e))
-            print(f"Error Occured: {e}")
+        # Prepare the validators, scheduler, and graph builder
+        rag_validator = [TopicValidator()]
+        p_and_c_validators = {
+            'validator': PrayerRelation(),
+            "counselling_validator": CounsellingRelation()
+        }
+        scheduler = setup_scheduler()
+        graph = create_workflow_graph().compile()
+        for i in ["I need prayer my wife is sick", "Generate an image of a dancing gorilla", "Get me the sermon titled 'test_video2'"]:
+            a = time.time()
+            try:
+                results = await graph.ainvoke(
+                    {
+                        'user_request': i,
+                        'user_name': user_name,
+                        'user_phone_number': user_phone_number,
+                        'rag_validator': rag_validator,
+                        'p_and_c_validators': p_and_c_validators,
+                        'scheduler': [scheduler]
+                    })
+                b = time.time()
+                print(b-a)
+                print(results['output_format'], results['response'])
+            except BaseException as e:
+                print(f"Error occurred: {e}")
 
     asyncio.run(execute_main_graph())
 
@@ -134,62 +127,3 @@ if __name__ == "__main__":
 
 #     # Call the main graph execution function
 #     asyncio.run(execute_main_graph())
-
-    # async def execute_graph():
-    #     try:
-    #         user_name = "Akachi12345678"
-    #         user_phone_number = '2349094540695'
-    #         session_id = user_phone_number
-    #         rag_validator = [TopicValidator()]
-    #         p_and_c_validators = {
-    #             'validator': PrayerRelation(),
-    #             "counselling_validator": CounsellingRelation()
-    #         }
-    #         scheduler = setup_scheduler()
-    #         graph_builder = create_workflow_graph()
-
-    #         async with AsyncSqliteSaver.from_conn_string("memory.db") as short_term_memory:
-    #             graph = graph_builder.compile(checkpointer=short_term_memory)
-
-    #             for user_request in [
-    #                 'Who is Apostle Micheal Orokpo',
-    #                 "Make me a picture of a Tiger",
-    #                 "I need counselling for marriage",
-    #                 "I need prayer for marriage"
-    #             ]:
-    #                 results = await graph.ainvoke(
-    #                     {
-    #                         'user_request': str(user_request),
-    #                         'user_name': user_name,
-    #                         'user_phone_number': user_phone_number,
-    #                         'rag_validator': rag_validator,
-    #                         "scheduler": [scheduler],
-    #                         "p_and_c_validators": p_and_c_validators
-    #                     },
-    #                     {"configurable": {"thread_id": session_id}},
-    #                 )
-    #                 print(results['output_format'], results['response'])
-    #     except BaseException as e:
-    #         print("Error occurred:\n%s" % traceback.format_exc())
-
-    # asyncio.run(execute_graph())
-
-    # async def execute_graph():
-    #     user_request = "Who is Apostle Uche Raymond"
-    #     user_name = "Akachi12345678"
-    #     user_phone_number = '2349094540695'
-    #     session_id = user_phone_number
-    #     rag_validator = [TopicValidator()]
-    #     p_and_c_validators = {'validator': PrayerRelation(
-    #     ), "counselling_validator": CounsellingRelation()}
-    #     graph_builder = create_workflow_graph()
-
-    #     for i in ['Who is Apostle Micheal Orokpo', "Make me a picture of a Tiger", "I need counselling for marriage", "I need prayer for marriage"]
-    #     async with AsyncSqliteSaver.from_conn_string(
-    #         "memory.db"
-    #     ) as short_term_memory:
-    #         graph = graph_builder.compile(checkpointer=short_term_memory)
-    #         results = graph.ainvoke({'user_request': user_request, 'user_name': user_name, 'user_phone_number': user_phone_number,
-    #                                  'rag_validator': rag_validator, "scheduler": [setup_scheduler()], "p_and_c_validators": p_and_c_validators},
-    #                                 {"configurable": {"thread_id": session_id}},)
-    #     print(results['output_format'], results['response'])

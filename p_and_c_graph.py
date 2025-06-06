@@ -1,10 +1,10 @@
 from typing_extensions import TypedDict
 from langgraph.graph import END, StateGraph, START
 from p_and_c_embeddings import p_and_c_router, prayer_and_counselling
-from prayer_embeddings import PrayerRelation
-from counselling_embedings import CounsellingRelation
+# from prayer_embeddings import PrayerRelation
+# from counselling_embedings import CounsellingRelation
 from typing import Dict
-import asyncio
+# import asyncio
 
 
 class GraphState(TypedDict):
@@ -72,29 +72,29 @@ help_workflow = help_workflow.compile()
 
 
 # Run all queries in a single event loop
-if __name__ == "__main__":
-    try:
-        async def run_queries():
-            questions = [
-                # "Who is the president of france",
-                # "I need prayer for healing of my husband?",
-                # "I need counselling in am confused",
-                # "I need couselling for addiction",
-                # "I need prayer my cousin is sick and counselling for my marriage",
-                "I need prayer for my marriage"
+# if __name__ == "__main__":
+#     try:
+#         async def run_queries():
+#             questions = [
+#                 # "Who is the president of france",
+#                 "I need prayer for healing of my husband?",
+#                 # "I need counselling in am confused",
+#                 "I need couselling for addiction",
+#                 "I need prayer my cousin is sick and counselling for my marriage",
+#                 # "I need prayer for my marriage"
 
-            ]
-            validator = PrayerRelation()
-            counselling_validator = CounsellingRelation()
-            for question in questions:
-                try:
-                    answer = await help_workflow.ainvoke(
-                        {"request": question, 'validators': {
-                            'prayer_validator': validator, "counselling_validator": counselling_validator}}
-                    )
-                    print(answer['response'])
-                except BaseException as e:
-                    print(f"Error for '{question}': {e}")
-        asyncio.run(run_queries())
-    except Exception as e:
-        print(f"Unexpected error: {e}")
+#             ]
+#             validator = PrayerRelation()
+#             counselling_validator = CounsellingRelation()
+#             for question in questions:
+#                 try:
+#                     answer = await help_workflow.ainvoke(
+#                         {"request": question, 'validators': {
+#                             'prayer_validator': validator, "counselling_validator": counselling_validator}}
+#                     )
+#                     print(answer['response'])
+#                 except BaseException as e:
+#                     print(f"Error for '{question}': {e}")
+#         asyncio.run(run_queries())
+#     except Exception as e:
+#         print(f"Unexpected error: {e}")

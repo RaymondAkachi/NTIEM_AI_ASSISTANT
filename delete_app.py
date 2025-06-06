@@ -5,21 +5,24 @@ from langchain_core.runnables import RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete, select
-from database import engine
+# from database import engine  # Used for in script testing
 from models import Appointment
 from ast import literal_eval
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import asyncio
-import regex as re
+# import asyncio # Used for in script testing
 import httpx
 import logging
-# from app_reminder import setup_scheduler
+# from app_reminder import setup_scheduler  # Used for in-script testing
 from typing import Dict, List, Any
+from settings import settings
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+WHATSAPP_API_URL = settings.WHATSAPP_API_URL
+WHATSAPP_API_AUTHORIZATION = settings.WHATSAPP_API_AUTHORIZATION
 
 
 async def on_appointment_deleted(name: str, phone_number: str, date: str, time: str) -> None:
@@ -41,8 +44,8 @@ async def on_appointment_deleted(name: str, phone_number: str, date: str, time: 
     #     appointment_time = "Invalid Time"
     #     appointment_date = "Unknown Date"
 
-    media_metadata_url = f"https://graph.facebook.com/v22.0/634136199777636/messages"
-    headers = {"Authorization": f"Bearer EAAMzcBIJtngBOyFZBiMZBH0GnacrALWRADQmZCkso9XIwaSJHQhg8J68CNKxB5v8OHZBWs7WEpriZBPSMRbbwvCEioxDRIfJTIxGPO7a8TktBCl3ZC4uUdYqiCa0d9jcjxz4U6TZB0017DPcixW8xhiqQoZAEC1V7gg0vcnZCvaSuadT4I46G4K285ZBeiVHXbj9NfnQZDZD",
+    media_metadata_url = WHATSAPP_API_URL
+    headers = {"Authorization": WHATSAPP_API_AUTHORIZATION,
                "Content-Type": "application/json"}
     json_data = {"messaging_product": "whatsapp",
                  "recipient_type": "individual",
@@ -246,7 +249,7 @@ async def get_all_scheduler_jobs(scheduler: AsyncIOScheduler) -> List[Dict[str, 
 #         scheduler.start()
 #         async with AsyncSession(engine) as session:
 #             delete_appointment = DeleteAppointments(
-#                 "delete this appointment of id 50, 52, 53, 54", session, scheduler)
+#                 "delete this appointment of id 60", session, scheduler)
 #             res = await delete_appointment.delete_appointments('2349094540644')
 #             print(res)
 #         scheduler.shutdown()

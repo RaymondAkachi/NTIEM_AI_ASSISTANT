@@ -158,8 +158,3 @@ async def text_response(number, text):
 
 # result = asyncio.run(text_response('2349094540644', "Hello there!"))
 # print(result)
-
-rest = [{'hello': 'there', "tooso": 'your namae'},
-        {"hello": 'there', 'what_is': 'your name?'}]
-for i in rest:
-    print(i['hello'])
